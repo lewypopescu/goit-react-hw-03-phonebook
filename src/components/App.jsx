@@ -9,19 +9,23 @@ import styles from './App.module.css';
 
 export class App extends Component {
   state = {
-    contacts: [
-      { id: 'id-1', name: 'Rosie Simpson', number: '459-12-56' },
-      { id: 'id-2', name: 'Hermione Kline', number: '443-89-12' },
-      { id: 'id-3', name: 'Eden Clements', number: '645-17-79' },
-      { id: 'id-4', name: 'Annie Copeland', number: '227-91-26' },
-    ],
+    contacts: [],
     filter: '',
   };
 
   componentDidMount() {
     const contacts = localStorage.getItem('contacts');
-    if (contacts) {
+    if (contacts && contacts.length > 2) {
       this.setState({ contacts: JSON.parse(contacts) });
+    } else {
+      const initialContacts = [
+        { id: 'id-1', name: 'Rosie Simpson', number: '459-12-56' },
+        { id: 'id-2', name: 'Hermione Kline', number: '443-89-12' },
+        { id: 'id-3', name: 'Eden Clements', number: '645-17-79' },
+        { id: 'id-4', name: 'Annie Copeland', number: '227-91-26' },
+      ];
+      this.setState({ contacts: initialContacts });
+      localStorage.setItem('contacts', JSON.stringify(initialContacts));
     }
   }
 
@@ -32,6 +36,17 @@ export class App extends Component {
   }
 
   handleAddContact = contact => {
+    const { contacts } = this.state;
+    const contactExists = contacts.some(
+      existingContact =>
+        existingContact.name.toLowerCase() === contact.name.toLowerCase()
+    );
+
+    if (contactExists) {
+      alert(`${contact.name} is already in contacts.`);
+      return;
+    }
+
     const newContact = {
       id: nanoid(),
       ...contact,
